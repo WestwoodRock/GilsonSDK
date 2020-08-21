@@ -7,6 +7,36 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Margin="10" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Connect" Command="{Binding ConnectCommand}" Grid.Column="0" Margin="0,0,10,0"/>
+                <Button Content="Disconnect" Command="{Binding DisconnectCommand}" Grid.Column="0" Margin="0,0,10,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ComboBox Width="200" HorizontalAlignment="Left" Margin="0,0,10,0" ItemsSource="{Binding AvailablePorts}" SelectedItem="{Binding SelectedComsPort}"/>
+                <TextBox Width="200" Text="{Binding BaudRate, Mode=TwoWay, FallbackValue=19200}"/>
+            </StackPanel>
+        </Grid>
+        <Grid Margin="10" Grid.Row="1" IsEnabled="{Binding IsConnected}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Scan" Grid.Column="0" Margin="0,0,10,0"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ComboBox Width="200" HorizontalAlignment="Left" Margin="0,0,10,0"/>
+                <TextBlock Text="Scanning..." VerticalAlignment="Center" />
+            </StackPanel>
+           
+        </Grid>
     </Grid>
 </Window>

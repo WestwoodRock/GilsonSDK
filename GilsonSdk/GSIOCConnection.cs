@@ -48,11 +48,20 @@ namespace GilsonSdk
         /// Initializes a new instance of the <see cref="GSIOCConnection"/> class.
         /// </summary>
         /// <param name="port">The port.</param>
-        protected GSIOCConnection(SerialPort port)
+        public GSIOCConnection(SerialPort port)
         {
             _port = port;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GSIOCConnection"/> class.
+        /// </summary>
+        /// <param name="portName">Name of the port.</param>
+        /// <param name="baudRate">The baud rate.</param>
+        public GSIOCConnection(string portName, int baudRate) : this (portName, baudRate, System.IO.Ports.Parity.Even, 8, System.IO.Ports.StopBits.One, true, true)
+        {
+
+        }
         /// <summary>
         /// Initializes a new instance of the <see cref="GilsonGSIOCDevice"/> class.
         /// </summary>
@@ -63,7 +72,7 @@ namespace GilsonSdk
         /// <param name="stopBits">The stop bits.</param>
         /// <param name="DtrEnable">if set to <c>true</c> [DTR enable].</param>
         /// <param name="RtsEnable">if set to <c>true</c> [RTS enable].</param>
-        protected GSIOCConnection(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits, bool DtrEnable = true, bool RtsEnable = true)
+        public GSIOCConnection(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits, bool DtrEnable = true, bool RtsEnable = true)
         {
             _port = new SerialPort(portName, baudRate, parity, dataBits, stopBits)
             {
@@ -72,13 +81,22 @@ namespace GilsonSdk
             };
         }
 
-        public GSIOCConnection()
-        {
-        }
         #endregion
 
         #region Methods
         public void Open() => _port.Open();
+
+        public void Close()
+        {
+            if (_port != null)
+            {
+                if (_port.IsOpen)
+                {
+                    _port.Close();
+                }
+            }
+        }
+
 
         public void Dispose()
         {

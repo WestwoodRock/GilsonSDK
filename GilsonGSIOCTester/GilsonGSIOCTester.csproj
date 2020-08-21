@@ -6,4 +6,12 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="DSoft.System.Mvvm" Version="1.2.2006.221" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GilsonSdk\GilsonSdk.csproj" />
+  </ItemGroup>
+
 </Project>
