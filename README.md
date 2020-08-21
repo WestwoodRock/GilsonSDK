@@ -8,7 +8,7 @@ Also includes GSIOC Command Utility for sending commands to Gilson Devices
 - Scanning for devices
 - Sending Immediate and Buffered commands
 - Clasess for specific device functions such as Pump and Liquid Handlers
-- Uses System.IO.Ports nuget package and is .Net Standard 2.0 compatible 
+- Uses System.IO.Ports nuget package and is a .Net Standard 2.0 package 
 
 ## Connecting
 
