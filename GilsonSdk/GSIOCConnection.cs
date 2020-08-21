@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace GilsonSdk
 {
-    public abstract class GilsonGSIOCDevice : IDisposable
+    public class GSIOCConnection : IDisposable
     {
         #region Fields
         public const byte GSIOCLastBufferedCharacterBit = 1 << 7;
@@ -14,7 +15,8 @@ namespace GilsonSdk
         #endregion
 
         #region Properties
-        protected bool IsOpen => _port.IsOpen;
+
+        public bool IsOpen => _port.IsOpen;
 
         /// <summary>
         /// Gets or sets a value indicating whether [RTS enabled].
@@ -43,10 +45,10 @@ namespace GilsonSdk
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="GilsonGSIOCDevice"/> class.
+        /// Initializes a new instance of the <see cref="GSIOCConnection"/> class.
         /// </summary>
         /// <param name="port">The port.</param>
-        protected GilsonGSIOCDevice(SerialPort port)
+        protected GSIOCConnection(SerialPort port)
         {
             _port = port;
         }
@@ -61,7 +63,7 @@ namespace GilsonSdk
         /// <param name="stopBits">The stop bits.</param>
         /// <param name="DtrEnable">if set to <c>true</c> [DTR enable].</param>
         /// <param name="RtsEnable">if set to <c>true</c> [RTS enable].</param>
-        protected GilsonGSIOCDevice(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits,bool DtrEnable = true, bool RtsEnable = true)
+        protected GSIOCConnection(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits, bool DtrEnable = true, bool RtsEnable = true)
         {
             _port = new SerialPort(portName, baudRate, parity, dataBits, stopBits)
             {
@@ -69,14 +71,18 @@ namespace GilsonSdk
                 RtsEnable = RtsEnable,
             };
         }
+
+        public GSIOCConnection()
+        {
+        }
         #endregion
 
         #region Methods
-        protected void Open() => _port.Open();
+        public void Open() => _port.Open();
 
         public void Dispose()
         {
-           if (_port != null)
+            if (_port != null)
             {
                 if (_port.IsOpen)
                 {
@@ -85,14 +91,12 @@ namespace GilsonSdk
             }
         }
 
-        private void EnsurePortOpen()
+        internal void EnsurePortOpen()
         {
             if (IsOpen == false)
                 Open();
         }
         #endregion
-
-        #region Public Async Methods
 
         /// <summary>
         /// Sends disconnect message for all Gilson devices
@@ -165,12 +169,13 @@ namespace GilsonSdk
             return 0;
         }
 
+
         /// <summary>
         /// Executes an immediate instruction asynchronously
         /// </summary>
-        /// <param name="command">The command to execute</param>
-        /// <returns>byte array of any response</returns>
-        public async Task<byte[]> ExecuteImmediateCommandAsync(char command)
+        /// <param name="command">The command.</param>
+        /// <returns></returns>
+        public async Task<(byte[] BinaryData, string StringValue)> ExecuteImmediateCommandAsync(char command)
         {
             EnsurePortOpen();
 
@@ -217,13 +222,22 @@ namespace GilsonSdk
                 }
             }
 
-            return data.ToArray();
+            var outputData = data.ToArray();
+            var stringValue = string.Empty;
+
+            if (outputData != null && outputData.Length > 0)
+            {
+                stringValue = _port.Encoding.GetString(outputData);
+            }
+
+            return (outputData, stringValue);
+
         }
 
         /// <summary>
         /// Executes a buffered command asynchronously
         /// </summary>
-        /// <param name="command">The command.</param>
+        /// <param name="command">The command to execute</param>
         /// <param name="parameters">The parameters.</param>
         public async Task ExecuteBufferedCommandAsync(char command, string parameters = null)
         {
@@ -368,21 +382,6 @@ namespace GilsonSdk
             return devices;
         }
 
-        /// <summary>
-        /// Sends the master reset to the specified device asynchronously
-        /// </summary>
-        /// <param name="deviceId">The device Id.</param>
-        /// <returns></returns>
-        public async Task<string> ResetDeviceAsync(byte deviceId)
-        {
-            await ConnectAsync(deviceId);
-
-            var moduleInfo = await ExecuteImmediateCommandAsync('$');
-
-            var output = _port.Encoding.GetString(moduleInfo);
-
-            return output;
-        }
 
         /// <summary>
         /// Gets the module information asynchronously
@@ -393,17 +392,23 @@ namespace GilsonSdk
         {
             await ConnectAsync(deviceId);
 
-            var moduleInfo = await ExecuteImmediateCommandAsync('%');
+            var result = await ExecuteImmediateCommandAsync('%');
 
-            var output = _port.Encoding.GetString(moduleInfo);
-
-            return output;
+            return result.StringValue;
         }
 
-        #endregion
+        /// <summary>
+        /// Sends the master reset to the specified device asynchronously
+        /// </summary>
+        /// <param name="deviceId">The device Id.</param>
+        /// <returns></returns>
+        public async Task<string> ResetDeviceAsync(byte deviceId)
+        {
+            await ConnectAsync(deviceId);
 
+            var result = await ExecuteImmediateCommandAsync('$');
 
-
-
+            return result.StringValue;
+        }
     }
 }
