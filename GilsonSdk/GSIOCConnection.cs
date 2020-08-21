@@ -362,8 +362,10 @@ namespace GilsonSdk
         /// <param name="startPos">The initial scan position between 0 and 63</param>
         /// <param name="scanProgressUpdater">Progress updater action for showing the scanning process</param>
         /// <returns></returns>
-        public async Task<byte> FindFirstDeviceAsync(byte startPos = 0, Action<string> scanProgressUpdater = null)
+        public async Task<GSIOCDeviceInfo> FindFirstDeviceAsync(byte startPos = 0, Action<string> scanProgressUpdater = null)
         {
+            EnsurePortOpen();
+
             for (byte idNumberOffset = startPos; idNumberOffset <= 64; idNumberOffset++)
             {
                 byte tempId = (byte)((idNumberOffset) & 0x3F);
@@ -377,15 +379,17 @@ namespace GilsonSdk
                 {
                     await DisconnectDevicesAsync();
 
-                    return tempId;
+                    var moduleInfo = await GetModuleInfoAsync(result);
+
+                    await DisconnectDevicesAsync();
+
+                    return new GSIOCDeviceInfo(result, moduleInfo);
                 }
-
-
 
                 await Task.Delay(50);
             }
 
-            return 0;
+            return null;
         }
 
         /// <summary>
@@ -396,6 +400,8 @@ namespace GilsonSdk
         /// <returns></returns>
         public async Task<List<GSIOCDeviceInfo>> FindAllDevicesAsync(byte startPos = 0, Action<string> scanProgressUpdater = null)
         {
+            EnsurePortOpen();
+
             var devices = new List<GSIOCDeviceInfo>();
 
             for (byte idNumberOffset = startPos; idNumberOffset <= 64; idNumberOffset++)
