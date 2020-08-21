@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="DSoft.System.Mvvm" Version="1.2.2006.221" />
+    <PackageReference Include="DSoft.System.Mvvm.Ui" Version="1.2.2006.221" />
   </ItemGroup>
 
   <ItemGroup>

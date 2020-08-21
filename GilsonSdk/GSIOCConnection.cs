@@ -218,7 +218,26 @@ namespace GilsonSdk
 
                     _port.Read(bytes, 0, _port.BytesToRead);
 
+                    if (bytes.Length == 1)
+                    {
+                        var lastByte = bytes.Last();
+
+                        if (lastByte > 127)
+                        {
+                            var rxCahrint = lastByte & ~GSIOCLastBufferedCharacterBit;
+
+                            var rxChar = Convert.ToByte(rxCahrint);
+
+                            data.Add(rxChar);
+
+                            completed = true;
+
+                            continue;
+                        }
+                    }
+
                     data.AddRange(bytes);
+
 
                     //send acknowledgement that the bytes have been recieved
                     _port.Write(ackBytes, 0, 1);
@@ -375,9 +394,9 @@ namespace GilsonSdk
         /// <param name="startPos">The initial scan position between 0 and 63</param>
         /// <param name="scanProgressUpdater">Progress updater action for showing the scanning process</param>
         /// <returns></returns>
-        public async Task<List<byte>> FindAllDevicesAsync(byte startPos = 0, Action<string> scanProgressUpdater = null)
+        public async Task<List<GSIOCDeviceInfo>> FindAllDevicesAsync(byte startPos = 0, Action<string> scanProgressUpdater = null)
         {
-            var devices = new List<byte>();
+            var devices = new List<GSIOCDeviceInfo>();
 
             for (byte idNumberOffset = startPos; idNumberOffset <= 64; idNumberOffset++)
             {
@@ -389,7 +408,11 @@ namespace GilsonSdk
 
                 if (result > 0)
                 {
-                    devices.Add(result);
+                    var moduleInfo = await GetModuleInfoAsync(result);
+
+                    await DisconnectDevicesAsync();
+
+                    devices.Add(new GSIOCDeviceInfo(result, moduleInfo));
                 }
 
                 await Task.Delay(50);

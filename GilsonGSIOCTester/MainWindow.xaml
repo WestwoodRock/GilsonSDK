@@ -31,10 +31,10 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button Content="Scan" Grid.Column="0" Margin="0,0,10,0"/>
+            <Button Content="Scan" Command="{Binding ScanCommand}" Grid.Column="0" Margin="0,0,10,0"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <ComboBox Width="200" HorizontalAlignment="Left" Margin="0,0,10,0"/>
-                <TextBlock Text="Scanning..." VerticalAlignment="Center" />
+                <ComboBox Width="200" HorizontalAlignment="Left" ItemsSource="{Binding AvailableDevices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding SelectedDevice}" Margin="0,0,10,0"/>
+                <TextBlock Text="{Binding ScanningStatus}" VerticalAlignment="Center" />
             </StackPanel>
            
         </Grid>

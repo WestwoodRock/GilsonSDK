@@ -5,17 +5,24 @@ using System.IO.Ports;
 using System.Linq;
 using System.Mvvm;
 using System.Text;
+using System.Windows.Input;
 
 namespace GilsonGSIOCTester
 {
     public class MainViewModel : ViewModel
     {
-
-        #region Properties
-
+        #region Fields
         private string _baudRate;
         private bool _isConnected;
         private GSIOCConnection _connection;
+        private string _scanningStatus;
+        private List<GSIOCDeviceInfo> _devices;
+        private GSIOCDeviceInfo _selectedDevice;
+        #endregion
+
+        #region Properties
+
+
 
         public string BaudRate
         {
@@ -39,7 +46,11 @@ namespace GilsonGSIOCTester
             set { _availablePort = value; NotifyPropertyChanged(nameof(AvailablePorts)); }
         }
 
-
+        public string ScanningStatus
+        {
+            get { return _scanningStatus; }
+            set { _scanningStatus = value; NotifyPropertyChanged(nameof(ScanningStatus)); }
+        }
 
         public bool IsConnected
         {
@@ -48,12 +59,26 @@ namespace GilsonGSIOCTester
         }
 
 
+        public List<GSIOCDeviceInfo> AvailableDevices
+        {
+            get { return _devices; }
+            set { _devices = value; NotifyPropertyChanged(nameof(AvailableDevices)); }
+        }
+
+
+
+        public GSIOCDeviceInfo SelectedDevice
+        {
+            get { return _selectedDevice; }
+            set { _selectedDevice = value; NotifyPropertyChanged(nameof(SelectedDevice)); }
+        }
+
         #endregion
         #region Commands
 
 
 
-        public System.Windows.Input.ICommand ConnectCommand
+        public ICommand ConnectCommand
         {
             get
             {
@@ -81,7 +106,7 @@ namespace GilsonGSIOCTester
             }
         }
 
-        public System.Windows.Input.ICommand DisconnectCommand
+        public ICommand DisconnectCommand
         {
             get
             {
@@ -109,6 +134,51 @@ namespace GilsonGSIOCTester
                 });
             }
         }
+
+
+
+        public ICommand ScanCommand
+        {
+            get
+            {
+                return new DelegateCommand(async () =>
+                {
+                    try
+                    {
+                        SelectedDevice = null;
+
+                        ScanningStatus = string.Empty;
+
+                        var deviceIds = await _connection.FindAllDevicesAsync(0, (currentPort) =>
+                        {
+                            var message = $"Scanning: {currentPort}";
+
+                            UI.InvokeOnUIThread(() =>
+                            {
+                                ScanningStatus = message;
+                            });
+                        });
+
+                        AvailableDevices = deviceIds;
+
+                        ScanningStatus = string.Empty;
+
+                        ScanningStatus = $"Found {AvailableDevices.Count} Devices";
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                        NotifyErrorOccured(ex);
+                    }
+                }, (obj) =>
+                {
+                    return IsConnected;
+                });
+            }
+
+        }
+
         #endregion
 
         #region Constructors
@@ -120,6 +190,8 @@ namespace GilsonGSIOCTester
             SelectedComsPort = AvailablePorts.Last();
 
             BaudRate = "19200";
+
+            AvailableDevices = new List<GSIOCDeviceInfo>();
         }
         #endregion
     }
