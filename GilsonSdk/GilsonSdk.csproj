@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright © 2020 Westwood Rock Ltd</Copyright>
+    <PackageProjectUrl>https://westwoodrock.co.uk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/WestwoodRock/GilsonSDK</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+    <Description>Gilson GSIOC SDK for .Net written in c#</Description>
+    <Company>Westwood Rock</Company>
+    <Authors>Westwood Rock</Authors>
   </PropertyGroup>
 
   <ItemGroup>

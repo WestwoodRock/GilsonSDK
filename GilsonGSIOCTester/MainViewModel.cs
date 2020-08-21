@@ -18,6 +18,10 @@ namespace GilsonGSIOCTester
         private string _scanningStatus;
         private List<GSIOCDeviceInfo> _devices;
         private GSIOCDeviceInfo _selectedDevice;
+        private string _parameters;
+        private string _commandResponse;
+
+        private string _command;
         #endregion
 
         #region Properties
@@ -70,10 +74,32 @@ namespace GilsonGSIOCTester
         public GSIOCDeviceInfo SelectedDevice
         {
             get { return _selectedDevice; }
-            set { _selectedDevice = value; NotifyPropertyChanged(nameof(SelectedDevice)); }
+            set { _selectedDevice = value; NotifyPropertiesChanged(nameof(SelectedDevice), nameof(DeviceSelected)); }
         }
 
+
+        public string Command
+        {
+            get { return _command; }
+            set { _command = value; NotifyPropertyChanged(nameof(Command)); }
+        }
+
+        public string Parameters
+        {
+            get { return _parameters; }
+            set { _parameters = value; NotifyPropertyChanged(nameof(Parameters)); }
+        }
+
+        public string CommandResponse
+        {
+            get { return _commandResponse; }
+            set { _commandResponse = value; NotifyPropertyChanged(nameof(CommandResponse)); }
+        }
+
+        public bool DeviceSelected => SelectedDevice != null;
+
         #endregion
+
         #region Commands
 
 
@@ -135,8 +161,6 @@ namespace GilsonGSIOCTester
             }
         }
 
-
-
         public ICommand ScanCommand
         {
             get
@@ -179,6 +203,66 @@ namespace GilsonGSIOCTester
 
         }
 
+
+
+        public ICommand ExecuteImmediateCommand
+        {
+            get
+            {
+                return new DelegateCommand(async () =>
+                {
+                    try
+                    {
+                        await _connection.ConnectAsync(SelectedDevice.Id);
+
+                        var result = await _connection.ExecuteImmediateCommandAsync(Command[0]);
+
+                        CommandResponse = result.StringValue;
+                        Command = string.Empty;
+                        Parameters = string.Empty;
+                    }
+                    catch (Exception ex)
+                    {
+
+                        NotifyErrorOccured(ex);
+                    }
+                }, (obj) =>
+                {
+                    
+                    return !string.IsNullOrWhiteSpace(Command) && Command.Length < 2;
+                });
+            }
+
+        }
+
+        public ICommand ExecuteBufferedCommand
+        {
+            get
+            {
+                return new DelegateCommand(async () =>
+                {
+                    try
+                    {
+                        await _connection.ConnectAsync(SelectedDevice.Id);
+
+                        await _connection.ExecuteBufferedCommandAsync(Command[0], Parameters);
+
+                        CommandResponse = "ok";
+                        Command = string.Empty;
+                        Parameters = string.Empty;
+                    }
+                    catch (Exception ex)
+                    {
+
+                        NotifyErrorOccured(ex);
+                    }
+                }, (obj) =>
+                {
+                    return !string.IsNullOrWhiteSpace(Command) && !string.IsNullOrWhiteSpace(Parameters);
+                });
+            }
+
+        }
         #endregion
 
         #region Constructors

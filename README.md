@@ -1,2 +1,5 @@
 # GilsonSDK
-Gilson SDK for .Net
+
+Gilson GSIOC SDK for .Net written in c#
+
+
