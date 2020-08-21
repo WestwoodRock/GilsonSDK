@@ -1,4 +1,4 @@
-# Gilson GSIOC SDK for Microsoft .Net written in c#  
+# Gilson GSIOC SDK for Microsoft .Net written in C#  
 
 Also includes GSIOC Command Utility for sending commands to Gilson Devices
 
