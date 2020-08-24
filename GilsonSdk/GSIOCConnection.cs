@@ -16,6 +16,12 @@ namespace GilsonSdk
 
         #region Properties
 
+        /// <summary>
+        /// Gets a value indicating whether the connection is open.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is open; otherwise, <c>false</c>.
+        /// </value>
         public bool IsOpen => _port.IsOpen;
 
         /// <summary>
@@ -84,8 +90,14 @@ namespace GilsonSdk
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Opens the connection
+        /// </summary>
         public void Open() => _port.Open();
 
+        /// <summary>
+        /// Closes the connection
+        /// </summary>
         public void Close()
         {
             if (_port != null)
@@ -97,18 +109,15 @@ namespace GilsonSdk
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose() => Close();
 
-        public void Dispose()
-        {
-            if (_port != null)
-            {
-                if (_port.IsOpen)
-                {
-                    _port.Close();
-                }
-            }
-        }
 
+        /// <summary>
+        /// Ensures that the port is open.
+        /// </summary>
         internal void EnsurePortOpen()
         {
             if (IsOpen == false)
@@ -276,14 +285,20 @@ namespace GilsonSdk
         /// </summary>
         /// <param name="command">The command to execute</param>
         /// <param name="parameters">The parameters.</param>
-        public async Task ExecuteBufferedCommandAsync(char command, string parameters = null)
+        public Task ExecuteBufferedCommandAsync(char command, string parameters = null) => ExecuteBufferedCommandAsync(Convert.ToByte(command));
+
+        /// <summary>
+        /// Executes a buffered command asynchronously
+        /// </summary>
+        /// <param name="command">The command to execute</param>
+        /// <param name="parameters">The parameters.</param>
+        public async Task ExecuteBufferedCommandAsync(byte command, string parameters = null)
         {
             EnsurePortOpen();
 
             var linebreak = new byte[1] { 0x0A };
             var carrigeReturn = new byte[1] { 0x0D };
-            var commandBytes = new byte[1] { Convert.ToByte(command) };
-
+            var commandBytes = new byte[1] { command };
 
             _port.Write(linebreak, 0, 1);
 

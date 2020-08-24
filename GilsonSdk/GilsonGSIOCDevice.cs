@@ -60,9 +60,10 @@ namespace GilsonSdk
         /// </summary>
         /// <param name="command">The command.</param>
         /// <returns></returns>
-        public async Task<(byte[] BinaryData, string StringValue)> ExecuteImmediateCommandAsync(char command)
+        public async Task<(byte[] BinaryData, string StringValue)> ExecuteImmediateCommandAsync(char command, bool reconnect = true)
         {
-            await ConnectAsync();
+            if (reconnect == true)
+                await ConnectAsync();
 
             return await _connection.ExecuteImmediateCommandAsync(command);
         }
@@ -72,7 +73,19 @@ namespace GilsonSdk
         /// </summary>
         /// <param name="command">The command to execute</param>
         /// <param name="parameters">The parameters.</param>
-        public async Task ExecuteBufferedCommandAsync(char command, string parameters = null)
+        public Task ExecuteBufferedCommandAsync(char command, string parameters = null) => ExecuteBufferedCommandAsync(Convert.ToByte(command), parameters);
+
+        public async Task ExecuteBufferedCommandAsync(char command, byte parameter)
+        {
+            var parstring = Convert.ToString(parameter);
+
+        }
+        /// <summary>
+        /// Executes a buffered command on this device asynchronously
+        /// </summary>
+        /// <param name="command">The command to execute</param>
+        /// <param name="parameters">The parameters.</param>
+        public async Task ExecuteBufferedCommandAsync(byte command, string parameters = null)
         {
             await ConnectAsync();
 
