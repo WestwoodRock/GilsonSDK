@@ -150,9 +150,9 @@ namespace GilsonSdk
             var x = 0d;
             var y = 0d;
 
-            if (output.Contains(@"\"))
+            if (output.Contains(@"/"))
             {
-                var oSplit = output.Split('\\');
+                var oSplit = output.Split('/');
 
                 double.TryParse(oSplit[0], out x);
                 double.TryParse(oSplit[1], out y);
@@ -162,6 +162,10 @@ namespace GilsonSdk
             return (x, y);
         }
 
+        /// <summary>
+        /// Gets the minimum and maximum ranges of travel for the liquid hander
+        /// </summary>
+        /// <returns></returns>
         public async Task<(double minX, double maxX, double minY, double maxY)> GetTravelRangeAsync()
         {
             var result = await ExecuteImmediateCommandAsync('Q');
@@ -175,10 +179,43 @@ namespace GilsonSdk
 
             var mSplit = output.Split(' ');
 
-            var xSPlit = mSplit[0];
-            var ySplit = mSplit[1];
+            foreach (var coords in mSplit)
+            {
+                if (coords.Contains('='))
+                {
+                    var tempMin = 0d;
+                    var tempMax = 0d;
 
+                    var substring = coords.Substring(coords.IndexOf("=") + 1);
 
+                    if (substring.Contains(@"/"))
+                    {
+                        var oSplit = substring.Split('/');
+
+                        double.TryParse(oSplit[0], out tempMin);
+                        double.TryParse(oSplit[1], out tempMax);
+
+                    }
+
+                    switch (coords[0])
+                    {
+                        case 'Y':
+                        case 'y':
+                            {
+                                minY = tempMin;
+                                maxY = tempMax;
+                            }
+                            break;
+                        case 'X':
+                        case 'x':
+                            {
+                                minX = tempMin;
+                                maxX = tempMax;
+                            }
+                            break;
+                    }
+                }
+            }
 
             return (minX, maxX, minY, maxY);
         }
