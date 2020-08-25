@@ -38,7 +38,7 @@ namespace GilsonSdk
         #region Public Async Methods
 
         /// <summary>
-        /// Connects to this device Id asynchronously
+        /// Connects to this device asynchronously
         /// </summary>
         /// <returns></returns>
         public Task<byte> ConnectAsync() => _connection.ConnectAsync(DeviceId);
@@ -75,11 +75,6 @@ namespace GilsonSdk
         /// <param name="parameters">The parameters.</param>
         public Task ExecuteBufferedCommandAsync(char command, string parameters = null) => ExecuteBufferedCommandAsync(Convert.ToByte(command), parameters);
 
-        public async Task ExecuteBufferedCommandAsync(char command, byte parameter)
-        {
-            var parstring = Convert.ToString(parameter);
-
-        }
         /// <summary>
         /// Executes a buffered command on this device asynchronously
         /// </summary>

@@ -48,7 +48,7 @@ namespace GilsonSdk
         /// Gets the display read out asyncnorously
         /// </summary>
         /// <returns></returns>
-        public async Task<string> GetReadDisplayAsync()
+        public async Task<string> GetDisplayTextAsync()
         {
             var readOut = await ExecuteImmediateCommandAsync('R');
 
@@ -110,6 +110,23 @@ namespace GilsonSdk
             return readOut.StringValue;
         }
 
+        /// <summary>
+        /// Reads the analogue input status.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string> ReadAnalogueInputStatusAsync()
+        {
+            var readOut = await ExecuteImmediateCommandAsync('V');
+
+            return readOut.StringValue;
+        }
+
+        public async Task<string> ReadContactInputStatusAsync()
+        {
+            var readOut = await ExecuteImmediateCommandAsync('I');
+
+            return readOut.StringValue;
+        }
 
         #endregion
 
